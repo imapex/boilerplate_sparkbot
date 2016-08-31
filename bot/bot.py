@@ -110,14 +110,14 @@ def process_incoming_message(post_data):
         return ""
 
     # Log details on message
-    sys.stdout.write("Message from: " + message["personEmail"] + "\n")
+    sys.stderr.write("Message from: " + message["personEmail"] + "\n")
 
     # Find the command that was sent, if any
     command = ""
     for c in commands.items():
         if message["text"].find(c[0]) == 0:
             command = c[0]
-            sys.stdout.write("Found command: " + command + "\n")
+            sys.stderr.write("Found command: " + command + "\n")
             # If a command was found, stop looking for others
             break
 
@@ -134,7 +134,7 @@ def process_incoming_message(post_data):
 # Sample command function that just echos back the sent message
 def send_echo(incoming):
     # Get sent message
-    message = incoming["markdown"]
+    message = incoming["text"]
     return message
 
 
@@ -163,17 +163,17 @@ if __name__ == '__main__':
         sys.exit("Missing required argument")
 
     # Write the details out to the console
-    sys.stdout.write("Spark Bot Email: " + bot_email + "\n")
-    sys.stdout.write("Spark Token: REDACTED\n")
-    sys.stdout.write("Spark Bot URL (for webhook): " + bot_url + "\n")
-    sys.stdout.write("Spark Bot App Name: " + bot_app_name + "\n")
+    sys.stderr.write("Spark Bot Email: " + bot_email + "\n")
+    sys.stderr.write("Spark Token: REDACTED\n")
+    sys.stderr.write("Spark Bot URL (for webhook): " + bot_url + "\n")
+    sys.stderr.write("Spark Bot App Name: " + bot_app_name + "\n")
 
     # Set Authorization Header for Spark REST API Requests
     spark_headers["Authorization"] = "Bearer " + spark_token
 
     # Create Web Hook to recieve ALL messages
     global_webhook_id = setup_webhook("", bot_url, bot_app_name)
-    sys.stdout.write("Global MyHero Web Hook ID: " + global_webhook_id + "\n")
+    sys.stderr.write("Global MyHero Web Hook ID: " + global_webhook_id + "\n")
 
     app.run(debug=True, host='0.0.0.0', port=int("5000"))
 
