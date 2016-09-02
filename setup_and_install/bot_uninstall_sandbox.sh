@@ -47,3 +47,4 @@ echo "Uninstalling the bot at $docker_username/$bot_name"
 curl -k -X DELETE -u $mantl_user:$mantl_password https://$control_address:8080/v2/apps/$docker_username/$bot_name \
 -H "Content-type: application/json"
 echo
+
