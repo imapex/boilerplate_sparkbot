@@ -28,7 +28,7 @@ echo "Deleting the Repo on GitHub"
 curl -u $GITHUBUSER:$GITHUBPASS -X DELETE https://api.github.com/repos/$GITHUBUSER/$GITHUBREPO
 
 echo "Deleting the local copy"
-cd ../
+cd ../../
 rm -Rf $GITHUBREPO
 
 echo " "
