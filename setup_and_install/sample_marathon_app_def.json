@@ -1,0 +1,29 @@
+{
+    "container": {
+        "type": "DOCKER",
+        "docker": {
+            "image": "DOCKERUSER/DOCKERREPO:latest",
+            "forcePullImage": true,
+            "network": "BRIDGE",
+            "portMappings": [{
+                "containerPort": 5000,
+                "hostPort": 0
+            }]
+        },
+        "forcePullImage": true
+    },
+    "healthChecks": [{
+        "protocol": "TCP",
+        "portIndex": 0
+    }],
+    "id": "/USERNAME/BOTNAME",
+    "instances": 1,
+    "cpus": 0.1,
+    "mem": 16,
+    "env": {
+        "SPARK_BOT_EMAIL": "BOTEMAIL",
+        "SPARK_BOT_TOKEN": "BOTTOKEN",
+        "SPARK_BOT_URL": "http://USERNAME-BOTNAME.APPDOMAIN",
+        "SPARK_BOT_APP_NAME": "BOTNAME"
+    }
+}
