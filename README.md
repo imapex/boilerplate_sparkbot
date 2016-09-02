@@ -31,7 +31,7 @@ To get started with your own SparkBot, follow this process.
 	cd ~/coding 
 
 	# Download the script
-	wget https://github.com/imapex/boilerplate_sparkbot/raw/dev/setup_and_install/new_bot_setup.sh 
+	wget https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh 
 
 	# Make the script executable 
 	chmod +x new_bot_setup.sh 
