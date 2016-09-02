@@ -6,7 +6,8 @@ echo
 echo What is your GitHub Password?
 read -s GITHUBPASS
 echo
-echo What is the name of the repo to delete?
+echo What is the name of your bot?
+echo "  - The name of your GitHub Repo and Local Code Directory that will be deleted"
 read GITHUBREPO
 echo
 

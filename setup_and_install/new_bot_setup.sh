@@ -13,33 +13,31 @@ echo "  - A new GitHub repo will be created with this name"
 read GITHUBREPO
 echo
 
-cd ../
-
 echo "Pulling down and prepping the code for the UI service."
 wget https://github.com/imapex/boilerplate_sparkbot/archive/dev.zip
 
-echo Creating new directory ./$GITHUBREPO
+echo
+echo Creating new directory ./$GITHUBREPO with bot code
+mkdir
 unzip -qq dev.zip -d ./$GITHUBREPO
-
-echo Deleting source zip file
 rm dev.zip
-
 cd ./$GITHUBREPO
 # Move the files into the root of the repo and cleanup folder
 mv boilerplate_sparkbot-dev/* ./
 mv boilerplate_sparkbot-dev/\.* ./
 rm -Rf boilerplate_sparkbot-dev
-
 # Delete unneeded files from boilerplate
 rm .drone.sec
 
+echo
 echo Creating new GitHub Repo
 curl -u $GITHUBUSER:$GITHUBPASS -X POST \
     https://api.github.com/user/repos \
     -d '{"name": "'$GITHUBREPO'"}' \
     -o /dev/null
 
-echo "Setting up GitHub Repo."
+echo
+echo "Setting up Local GitHub Repo and pushing to GitHub."
 git init
 git add .
 git commit -m "First commit"
