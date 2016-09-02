@@ -10,12 +10,11 @@ This Bot will use a provided Spark Account (identified by the Developer Token) a
 
 # Spark Account Requirements
 
-There are different strategies for building a Spark Bot.  This boilerplate expects that a dedicated Spark Account be provided for the bot.  This is as opposed to leveraging a Bot service from a seperate Spark Account.
+There are different strategies for building a Spark Bot.  This boilerplate expects that a ***dedicated Spark Account*** be provided for the bot.  This is as opposed to leveraging a Bot service from a seperate Spark Account.
 
 Create a new Cisco Spark account for your bot, and record it's email and token for use in development and deployment.
 
-**TODO - Add details on how to do this**
-
+You can create new, free account at [CiscoSpark.com](http://ciscospark.com).  You'll need an email address for the bot that hasn't been used with another.  Many users create accounts on Gmail for their bots if you do not have a personal domain/email-host you can use.  
 
 
 # Building your own Spark Bot
@@ -24,7 +23,20 @@ The purpose of this boilerplate is to make it quick and easy to create new Spark
 
 To get started with your own SparkBot, follow this process.  
 
-1. Clone the imapex repo 
+1. Download the setup script
+
+	```
+	# move to the directory where you store code for your projects
+	# DO NOT create a folder for your new bot
+	cd ~/coding 
+
+	# Download the script
+	wget https://github.com/imapex/boilerplate_sparkbot/raw/dev/setup_and_install/new_bot_setup.sh 
+
+	# Make the script executable 
+	chmod +x new_bot_setup.sh 
+	```
+ 
 2. Run the `new_bot_setup.sh` script
 	* Provide your GitHub Credentials
 	* Provide a name for your new Spark Bot 
@@ -36,8 +48,46 @@ To get started with your own SparkBot, follow this process.
 		* Create a new GitHub Repo on your account for the bot 
 		* Push up the boilerplate code to GitHub
 3. Add your bot commands and features to the bot.py file 
-	***TODO - provide more details on this step***
-4. Build the Docker image for your new bot
+	
+	1. Add new commands to the command dictionary in bot/bot.py 
+
+		```
+		# The list of commands the bot listens for
+		# Each key in the dictionary is a command
+		# The value is the help message sent for the command
+		commands = {
+		    "/echo": "Reply back with the same message sent.",
+		    "/help": "Get help."
+		}
+		```
+		
+	2. Create a new Python function for each of your commands.  The function should return the text that will be sent back in reply.  You can use the included 	`send_echo` function as an example.  
+
+		```
+		def send_echo(incoming):
+		    # Get sent message
+		    message = incoming["text"]
+		    # Slice first 6 characters to remove command
+		    message = message[6:]
+		    return message	
+		```
+	
+	3. Update the `if ...elif` section of the `process_incoming_message` function for your new command.  
+
+		```
+		# Some of function removed below
+		def process_incoming_message(post_data):
+		    # Take action based on command
+		    # If no command found, send help
+		    if command in ["","/help"]:
+		        reply = send_help(post_data)
+		    elif command in ["/echo"]:
+		        reply = send_echo(message)
+		
+		    send_message_to_room(room_id, reply)	
+		```
+	
+4. Build the Docker image for your new bot.  There are several methods available for this.  
 	* Using a drone.io CICD Server
 		* Included in the boilerplate code is a .drone.yml configuration that will build a new container and publish to a Docker Hub repository
 		* You'll need to copy the drone-secrets-sample.yml file to drone-secrets.yml, provide your informaiton, and secure the file before builds will be successful 
@@ -46,13 +96,42 @@ To get started with your own SparkBot, follow this process.
 		* **TODO - Provide more details**
 5. Deploy your Bot.  To fully function, you must deploy your bot where it is publically avialable on the Internet (Spark needs to be able to reach it with WebHooks)
 	* The DevNet Mantl Sandbox is a free and available option that can be used
-		* Included in the code is an installation script called `bot_deploy_devnet.sh` that will walk through the deployment of your Bot to the DevNet Sandbox.  
+		* Included in the code is an installation script that will deploy your bot to the sandbox.  *This script assumes you've published a Docker image to hub.docker.com for your bot*
+		* To install to the Sandbox
 
-**TODO - Create new_bot_setup script**
+			```
+			# From the root of your project... 
+			cd setup_and_install 
+			
+			# Run the install script
+			./bot_install_sandbox.sh 
+			```
+			
+		* Answer the questions
+		* A new Marathon app definition for your bot will be created and deployed to the DevNet Sandbox
 
-**TODO - Create bot_deploy_devnet.sh script**
 
+## Deleting your SparkBot
 
+Should you want to delete your SparkBot, a cleanup script is provided that will do much of the work for you.  
+
+1.  From your Spark Bot's local root directory
+
+	```
+	setup_and_install/new_bot_cleanup.sh
+	
+	```
+2. Provide your GitHub Credentials and the name of your Bot.  The script will 
+
+	* Delete your repository from GitHub
+	* Delete the local code from your workstation 
+
+3.  You will manually need to 
+
+	* Delete any running instances of your application 
+		* If you have deployed to the DevNet Sandbox, an uninstall script is available `setup_and_install/bot_uninstall_sandbox.sh` 
+	* Delete any Docker (or other container registry) Repositories for your Bot 
+	* Clear any WebHooks from the Spark Account you created for your bot
 
 
 # Spark Bot Installation and Details
