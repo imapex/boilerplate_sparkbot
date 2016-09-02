@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO - change the source branch from dev to master before publish
-
 echo What is your GitHub Username?
 read GITHUBUSER
 echo
@@ -14,18 +12,18 @@ read GITHUBREPO
 echo
 
 echo "Pulling down and prepping the code for the UI service."
-wget https://github.com/imapex/boilerplate_sparkbot/archive/dev.zip
+wget https://github.com/imapex/boilerplate_sparkbot/archive/master.zip
 
 echo
 echo Creating new directory ./$GITHUBREPO with bot code
 mkdir
-unzip -qq dev.zip -d ./$GITHUBREPO
-rm dev.zip
+unzip -qq master.zip -d ./$GITHUBREPO
+rm master.zip
 cd ./$GITHUBREPO
 # Move the files into the root of the repo and cleanup folder
-mv boilerplate_sparkbot-dev/* ./
-mv boilerplate_sparkbot-dev/\.* ./
-rm -Rf boilerplate_sparkbot-dev
+mv boilerplate_sparkbot-master/* ./
+mv boilerplate_sparkbot-master/\.* ./
+rm -Rf boilerplate_sparkbot-master
 # Delete unneeded files from boilerplate
 rm .drone.sec
 
