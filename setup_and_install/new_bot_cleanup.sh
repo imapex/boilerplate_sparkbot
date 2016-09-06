@@ -4,6 +4,9 @@ echo What is your GitHub Username?
 read GITHUBUSER
 echo
 echo What is your GitHub Password?
+echo "  ** If you have 2 Factor Auth configured, "
+echo "     provide a Personal Access Token with repo and delete_repo access."
+echo "     Tokens can be generated at https://github.com/settings/tokens **"
 read -s GITHUBPASS
 echo
 echo What is the name of your bot?
