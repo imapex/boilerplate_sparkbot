@@ -25,7 +25,7 @@ echo "What is the email address of your bot?  "
 read bot_email
 echo
 echo "What is the token for your bot?  "
-read bot_token
+read -s bot_token
 echo
 echo "Your bot will be deployed based on the 'latest' tag of Docker Container at: "
 echo "    https://hub.docker.com/r/$docker_username/$bot_name/"
