@@ -10,12 +10,44 @@ This Bot will use a provided Spark Account (identified by the Developer Token) a
 
 # Spark Account Requirements
 
-There are different strategies for building a Spark Bot.  This boilerplate expects that a ***dedicated Spark Account*** be provided for the bot.  This is as opposed to leveraging a Bot service from a seperate Spark Account.
+There are two strategies for building a Spark Bot.  
 
+1. **Dedicated Spark Account** for the bot.  Here you create a full Spark Account with a unique email address.  
+
+2. **Bot App** within another Spark Account.  Here you create a new *Bot App* under your personal Spark Account.  
+
+Bots created based on this boilerplate can leverage either type of strategy.  You'll just need to provide the correct email and token details when starting the bot code.  
+
+## Dedicated Spark Account 
 Create a new Cisco Spark account for your bot, and record it's email and token for use in development and deployment.
 
 You can create new, free account at [CiscoSpark.com](http://ciscospark.com).  You'll need an email address for the bot that hasn't been used with another.  Many users create accounts on Gmail for their bots if you do not have a personal domain/email-host you can use.  
 
+Once your new account is created, log into [developer.ciscospark.com](https://developer.ciscospark.com) to find the new accounts token.  Here is a screenshot of where to locate the information.  
+
+![](readme_resources/spark_token.jpg)
+
+## Bot App 
+A newer feature within Cisco Spark, is the ability to create *Bot* apps within another account.  This has the advantage of no longer requiring unique email accounts for each and every new bot you create.  Bot app accounts work nearly the same as full accounts with only a few differences.  Check this [page](https://developer.ciscospark.com/bots.html) for details.  
+
+To create a new Bot App account to use, here are the basic instructions.  
+
+1.  Log into [developer.ciscospark.com](https://developer.ciscospark.com) with your own personal Spark account.  
+2. Click on **My Apps** in the top menu, and create a new **Bot** (do not create a new integration).  
+
+	![](readme_resources/spark_myapps1.jpg)
+	---
+	![](readme_resources/spark_newapp1.jpg)
+	
+3. Provide a *Display Name*, *Bot Username*, and *Icon* URL for your new bot.  The *Bot Username* needs to be unique within Spark, and can **NOT** be changed.  Click **Add Bot**
+
+	![](readme_resources/spark_newbot1.jpg)
+	
+4. Record the *Access token* that is displayed on the next page, and **Save Changes**.  If you do NOT copy the token, you can regenerate it.  
+
+	![](readme_resources/spark_newbot2.jpg)
+	
+5. Also note the **Bot Username** that is displayed.  This is the ***Bot Email*** that will be needed when setting up your boilerplate code.  
 
 # Building your own Spark Bot
 
