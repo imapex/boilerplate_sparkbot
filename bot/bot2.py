@@ -103,8 +103,7 @@ def process_incoming_message(post_data):
     # Find the command that was sent, if any
     command = ""
     for c in commands.items():
-        # if message["text"].find(c[0]) == 0:
-        if message.text.find(c[0]) == 0:
+        if message.text.find(c[0]) != -1:
             command = c[0]
             sys.stderr.write("Found command: " + command + "\n")
             # If a command was found, stop looking for others
@@ -124,10 +123,7 @@ def process_incoming_message(post_data):
 # Sample command function that just echos back the sent message
 def send_echo(incoming):
     # Get sent message
-    # message = incoming["text"]
-    message = incoming.text
-    # Slice first 6 characters to remove command
-    message = message[6:]
+    message = extract_message("/echo", incoming.text)
     return message
 
 
@@ -137,6 +133,12 @@ def send_help(post_data):
     message = message + "I understand the following commands:  \n"
     for c in commands.items():
         message = message + "* **%s**: %s \n" % (c[0], c[1])
+    return message
+
+# Return contents following a given command
+def extract_message(command, text):
+    cmd_loc = text.find(command)
+    message = text[cmd_loc + len(command):]
     return message
 
 
