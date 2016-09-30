@@ -5,9 +5,10 @@
     This is a sample boilerplate application that provides the framework to quickly
     build and deploy an interactive Spark Bot.
 
-    There are different strategies for building a Spark Bot.  This boilerplate is
-    expects that a dedicated Spark Account be provided for the bot.  This is as
-    opposed to leveraging a Bot service from a seperate Spark Account.
+    There are different strategies for building a Spark Bot.  You can either create
+    a new dedicated Spark Account for the bot, or create an "Bot Account" underneath
+    another Spark Account.  Either type will work with this boilerplate, just be sure
+    to provide the correct token and email account as environment variables.
 
     This Bot will use a provided Spark Account (identified by the Developer Token)
     and create a webhook to receive all messages sent to the account.   You will
@@ -115,7 +116,7 @@ def process_incoming_message(post_data):
     # Find the command that was sent, if any
     command = ""
     for c in commands.items():
-        if message["text"].find(c[0]) == 0:
+        if message["text"].find(c[0]) != -1:
             command = c[0]
             sys.stderr.write("Found command: " + command + "\n")
             # If a command was found, stop looking for others
@@ -134,9 +135,7 @@ def process_incoming_message(post_data):
 # Sample command function that just echos back the sent message
 def send_echo(incoming):
     # Get sent message
-    message = incoming["text"]
-    # Slice first 6 characters to remove command
-    message = message[6:]
+    message = extract_message("/echo", incoming["text"])
     return message
 
 
@@ -148,6 +147,11 @@ def send_help(post_data):
         message = message + "* **%s**: %s \n" % (c[0], c[1])
     return message
 
+# Return contents following a given command
+def extract_message(command, text):
+    cmd_loc = text.find(command)
+    message = text[cmd_loc + len(command):]
+    return message
 
 
 if __name__ == '__main__':
@@ -175,7 +179,7 @@ if __name__ == '__main__':
 
     # Create Web Hook to recieve ALL messages
     global_webhook_id = setup_webhook("", bot_url, bot_app_name)
-    sys.stderr.write("Global MyHero Web Hook ID: " + global_webhook_id + "\n")
+    sys.stderr.write(bot_app_name + " Web Hook ID: " + global_webhook_id + "\n")
 
     app.run(debug=True, host='0.0.0.0', port=int("5000"))
 
