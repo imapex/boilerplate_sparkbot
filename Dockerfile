@@ -17,4 +17,4 @@ RUN pip install -r /app/requirements.txt
 WORKDIR /app
 ADD ./bot /app/bot
 
-CMD [ "python", "bot/bot2.py" ]
+CMD [ "python", "bot/bot.py" ]

@@ -1,5 +1,5 @@
 #! /usr/bin/python
-'''
+"""
     boilerplate_sparkbot
 
     This is a sample boilerplate application that provides the framework to quickly
@@ -35,15 +35,12 @@
     If you are running the bot within a docker container, they would be set like this:
     # ToDo - Add docker run command
 
-'''
+"""
 
-
-__author__ = 'hapresto'
-
-
-from flask import Flask, request, Response
-import requests, json, re
-from spark_utilities import *
+from flask import Flask, request
+from ciscosparkapi import CiscoSparkAPI
+import os
+import sys
 
 # Create the Flask application that provides the bot foundation
 app = Flask(__name__)
@@ -56,6 +53,7 @@ commands = {
     "/echo": "Reply back with the same message sent.",
     "/help": "Get help."
 }
+
 
 # Not strictly needed for most bots, but this allows for requests to be sent
 # to the bot from other web sites.  "CORS" Requests
@@ -85,13 +83,43 @@ def process_webhook():
 # Quick REST API to have bot send a message to a user
 @app.route("/hello/<email>", methods=["GET"])
 def message_email(email):
-    '''
+    """
     Kickoff a 1 on 1 chat with a given email
     :param email:
     :return:
-    '''
-    send_message_to_email(email, "Hello!")
+    """
+    # send_message_to_email(email, "Hello!")
+    spark.messages.create(toPersonEmail=email, markdown="Hello!")
     return "Message sent to " + email
+
+
+# Function to Setup the WebHook for the bot
+def setup_webhook(name, targeturl):
+    # Get a list of current webhooks
+    webhooks = spark.webhooks.list()
+
+    # Look for a Webhook for this bot_name
+    # Need try block because if there are NO webhooks it throws an error
+    try:
+        for h in webhooks:  # Efficiently iterates through returned objects
+            if h.name == name:
+                sys.stderr.write("Found existing webhook.\n")
+
+                # Update the targetURL for the Webhook
+                # This is erring, need to debug the ciscosparkapi library
+                # webhook = spark.webhooks.update(webhookId=global_webhook_id, name=bot_app_name, targetUrl=bot_url)
+
+                # Delete the existing webhook
+                spark.webhooks.delete(webhookId=h.id)
+
+                # Stop searching
+                break
+    except:
+        pass
+
+    sys.stderr.write("Creating new webhook.\n")
+    wh = spark.webhooks.create(name=name, targetUrl=targeturl, resource="messages", event="created")
+    return wh
 
 
 # Function to take action on incoming message
@@ -101,41 +129,45 @@ def process_incoming_message(post_data):
 
     # Get the details about the message that was sent.
     message_id = post_data["data"]["id"]
-    message = get_message(message_id)
+    message = spark.messages.get(message_id)
     # Uncomment to debug
     # sys.stderr.write("Message content:" + "\n")
     # sys.stderr.write(str(message) + "\n")
 
     # First make sure not processing a message from the bot
-    if message["personEmail"] == bot_email:
+    if message.personEmail in spark.people.me().emails:
+        # Uncomment to debug
+        # sys.stderr.write("Message from bot recieved." + "\n")
         return ""
 
     # Log details on message
-    sys.stderr.write("Message from: " + message["personEmail"] + "\n")
+    sys.stderr.write("Message from: " + message.personEmail + "\n")
 
     # Find the command that was sent, if any
     command = ""
     for c in commands.items():
-        if message["text"].find(c[0]) != -1:
+        if message.text.find(c[0]) != -1:
             command = c[0]
             sys.stderr.write("Found command: " + command + "\n")
             # If a command was found, stop looking for others
             break
 
+    reply = ""
     # Take action based on command
     # If no command found, send help
-    if command in ["","/help"]:
+    if command in ["", "/help"]:
         reply = send_help(post_data)
     elif command in ["/echo"]:
         reply = send_echo(message)
 
-    send_message_to_room(room_id, reply)
+    # send_message_to_room(room_id, reply)
+    spark.messages.create(roomId=room_id, markdown=reply)
 
 
 # Sample command function that just echos back the sent message
 def send_echo(incoming):
     # Get sent message
-    message = extract_message("/echo", incoming["text"])
+    message = extract_message("/echo", incoming.text)
     return message
 
 
@@ -147,6 +179,7 @@ def send_help(post_data):
         message = message + "* **%s**: %s \n" % (c[0], c[1])
     return message
 
+
 # Return contents following a given command
 def extract_message(command, text):
     cmd_loc = text.find(command)
@@ -156,8 +189,6 @@ def extract_message(command, text):
 
 if __name__ == '__main__':
     # Entry point for bot
-    import os, sys
-
     # Retrieve needed details from environment for the bot
     bot_email = os.getenv("SPARK_BOT_EMAIL")
     spark_token = os.getenv("SPARK_BOT_TOKEN")
@@ -165,7 +196,7 @@ if __name__ == '__main__':
     bot_app_name = os.getenv("SPARK_BOT_APP_NAME")
 
     # Make sure all required details were provided
-    if bot_email == None or spark_token == None or bot_url == None or bot_app_name == None:
+    if bot_email is None or spark_token is None or bot_url is None or bot_app_name is None:
         sys.exit("Missing required argument")
 
     # Write the details out to the console
@@ -174,12 +205,9 @@ if __name__ == '__main__':
     sys.stderr.write("Spark Bot URL (for webhook): " + bot_url + "\n")
     sys.stderr.write("Spark Bot App Name: " + bot_app_name + "\n")
 
-    # Set Authorization Header for Spark REST API Requests
-    spark_headers["Authorization"] = "Bearer " + spark_token
+    spark = CiscoSparkAPI(access_token=spark_token)
 
-    # Create Web Hook to recieve ALL messages
-    global_webhook_id = setup_webhook("", bot_url, bot_app_name)
-    sys.stderr.write(bot_app_name + " Web Hook ID: " + global_webhook_id + "\n")
+    webhook = setup_webhook(bot_app_name, bot_url)
+    sys.stderr.write("Webhook ID: " + webhook.id + "\n")
 
     app.run(debug=True, host='0.0.0.0', port=int("5000"))
-
