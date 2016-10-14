@@ -45,8 +45,8 @@ sed -i "" -e "s/DOCKERREPO/$bot_name/g" $docker_username-$bot_name-sandbox.json
 
 sed -i "" -e "s/USERNAME/$docker_username/g" $docker_username-$bot_name-sandbox.json
 sed -i "" -e "s/BOTNAME/$bot_name/g" $docker_username-$bot_name-sandbox.json
-sed -i "" -e "s/BOTEMAIL/$bot_email/g" $docker_username-$bot_name-sandbox.json
-sed -i "" -e "s/BOTTOKEN/$bot_token/g" $docker_username-$bot_name-sandbox.json
+#sed -i "" -e "s/BOTEMAIL/$bot_email/g" $docker_username-$bot_name-sandbox.json
+#sed -i "" -e "s/BOTTOKEN/$bot_token/g" $docker_username-$bot_name-sandbox.json
 sed -i "" -e "s/APPDOMAIN/$mantl_domain/g" $docker_username-$bot_name-sandbox.json
 
 

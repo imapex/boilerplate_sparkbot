@@ -21,8 +21,6 @@
     "cpus": 0.1,
     "mem": 16,
     "env": {
-        "SPARK_BOT_EMAIL": "BOTEMAIL",
-        "SPARK_BOT_TOKEN": "BOTTOKEN",
         "SPARK_BOT_URL": "http://USERNAME-BOTNAME.APPDOMAIN",
         "SPARK_BOT_APP_NAME": "BOTNAME"
     }
