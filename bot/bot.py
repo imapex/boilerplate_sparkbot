@@ -41,6 +41,7 @@ from flask import Flask, request
 from ciscosparkapi import CiscoSparkAPI
 import os
 import sys
+import json
 
 # Create the Flask application that provides the bot foundation
 app = Flask(__name__)
@@ -70,6 +71,11 @@ def after_request(response):
 # Entry point for Spark Webhooks
 @app.route('/', methods=["POST"])
 def process_webhook():
+    # Check if the Spark connection has been made
+    if spark is None:
+        sys.stderr.write("Bot not ready.  \n")
+        return "Spark Bot not ready.  "
+
     post_data = request.get_json(force=True)
     # Uncomment to debug
     # sys.stderr.write("Webhook content:" + "\n")
@@ -80,6 +86,29 @@ def process_webhook():
     return ""
 
 
+# Config Endpoint to set Spark Details
+@app.route('/config', methods=["GET", "POST"])
+def config_bot():
+    if request.method == "POST":
+        post_data = request.get_json(force=True)
+        # Verify that a token and email were both provided
+        if "SPARK_BOT_TOKEN" not in post_data.keys() or "SPARK_BOT_EMAIL" not in post_data.keys():
+            return "Error: POST Requires both 'SPARK_BOT_TOKEN' and 'SPARK_BOT_EMAIL' to be provided."
+
+        # Setup Spark
+        spark_setup(post_data["SPARK_BOT_EMAIL"], post_data["SPARK_BOT_TOKEN"])
+
+    # Return the config detail to API requests
+    config_data = {
+        "SPARK_BOT_EMAIL": bot_email,
+        "SPARK_BOT_TOKEN": spark_token,
+        "SPARK_BOT_URL": bot_url,
+        "SPARKBOT_APP_NAME": bot_app_name
+    }
+    config_data["SPARK_BOT_TOKEN"] = "REDACTED"     # Used to hide the token from requests.
+    return json.dumps(config_data)
+
+
 # Quick REST API to have bot send a message to a user
 @app.route("/hello/<email>", methods=["GET"])
 def message_email(email):
@@ -88,6 +117,11 @@ def message_email(email):
     :param email:
     :return:
     """
+    # Check if the Spark connection has been made
+    if spark is None:
+        sys.stderr.write("Bot not ready.  \n")
+        return "Spark Bot not ready.  "
+
     # send_message_to_email(email, "Hello!")
     spark.messages.create(toPersonEmail=email, markdown="Hello!")
     return "Message sent to " + email
@@ -186,6 +220,20 @@ def extract_message(command, text):
     message = text[cmd_loc + len(command):]
     return message
 
+# Setup the Spark connection and WebHook
+def spark_setup(email, token):
+    # Update the global variables for config details
+    globals()["spark_token"] = token
+    globals()["bot_email"] = email
+
+    sys.stderr.write("Spark Bot Email: " + bot_email + "\n")
+    sys.stderr.write("Spark Token: REDACTED\n")
+
+    # Setup the Spark Connection
+    globals()["spark"] = CiscoSparkAPI(access_token=globals()["spark_token"])
+    globals()["webhook"] = setup_webhook(globals()["bot_app_name"], globals()["bot_url"])
+    sys.stderr.write("Configuring Webhook. \n")
+    sys.stderr.write("Webhook ID: " + globals()["webhook"].id + "\n")
 
 if __name__ == '__main__':
     # Entry point for bot
@@ -195,19 +243,23 @@ if __name__ == '__main__':
     bot_url = os.getenv("SPARK_BOT_URL")
     bot_app_name = os.getenv("SPARK_BOT_APP_NAME")
 
-    # Make sure all required details were provided
-    if bot_email is None or spark_token is None or bot_url is None or bot_app_name is None:
-        sys.exit("Missing required argument")
+    # bot_url and bot_app_name must come in from Environment Variables
+    if bot_url is None or bot_app_name is None:
+            sys.exit("Missing required argument.  Must set 'SPARK_BOT_URL' and 'SPARK_BOT_APP_NAME' in ENV.")
 
     # Write the details out to the console
-    sys.stderr.write("Spark Bot Email: " + bot_email + "\n")
-    sys.stderr.write("Spark Token: REDACTED\n")
     sys.stderr.write("Spark Bot URL (for webhook): " + bot_url + "\n")
     sys.stderr.write("Spark Bot App Name: " + bot_app_name + "\n")
 
-    spark = CiscoSparkAPI(access_token=spark_token)
+    # Placeholder variables for spark connection objects
+    spark = None
+    webhook = None
 
-    webhook = setup_webhook(bot_app_name, bot_url)
-    sys.stderr.write("Webhook ID: " + webhook.id + "\n")
+    # Check if the token and email were set in ENV
+    if spark_token is None or bot_email is None:
+        sys.stderr.write("Spark Config is missing, please provide via API.  Bot not ready.\n")
+    else:
+        spark_setup(bot_email, spark_token)
+        spark = CiscoSparkAPI(access_token=spark_token)
 
     app.run(debug=True, host='0.0.0.0', port=int("5000"))
