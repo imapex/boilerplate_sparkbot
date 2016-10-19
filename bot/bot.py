@@ -127,6 +127,16 @@ def message_email(email):
     return "Message sent to " + email
 
 
+# Health Check
+@app.route("/health", methods=["GET"])
+def health_check():
+    """
+    Notify if bot is up
+    :return:
+    """
+    return "Up and healthy"
+
+
 # Function to Setup the WebHook for the bot
 def setup_webhook(name, targeturl):
     # Get a list of current webhooks
