@@ -12,10 +12,16 @@
         },
         "forcePullImage": true
     },
-    "healthChecks": [{
+    "healthChecks": [
+        {
         "protocol": "TCP",
         "portIndex": 0
-    }],
+        },
+        {
+        "path": "/health",
+        "protocol": "HTTP"
+      }
+    ],
     "id": "/USERNAME/BOTNAME",
     "instances": 1,
     "cpus": 0.1,
