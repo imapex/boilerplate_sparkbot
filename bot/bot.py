@@ -8,7 +8,7 @@
     There are different strategies for building a Spark Bot.  You can either create
     a new dedicated Spark Account for the bot, or create an "Bot Account" underneath
     another Spark Account.  Either type will work with this boilerplate, just be sure
-    to provide the correct token and email account as environment variables.
+    to provide the correct token and email account in the configuration.
 
     This Bot will use a provided Spark Account (identified by the Developer Token)
     and create a webhook to receive all messages sent to the account.   You will
@@ -20,7 +20,8 @@
     that can be used to run the bot.
 
     There are several pieces of information needed to run this application.  These
-    details are provided Environment Variables to the application.
+    details can be provided as Environment Variables to the application.  The Spark
+    token and email address can alternatively be provided/updated via an POST request to /config.
 
     If you are running the python application directly, you can set them like this:
 
@@ -34,6 +35,24 @@
 
     If you are running the bot within a docker container, they would be set like this:
     # ToDo - Add docker run command
+    docker run -it --name sparkbot \
+    -e "SPARK_BOT_EMAIL=myhero.demo@domain.com" \
+    -e "SPARK_BOT_TOKEN=adfiafdadfadfaij12321kaf" \
+    -e "SPARK_BOT_URL=http://myhero-spark.mantl.domain.com" \
+    -e "SPARK_BOT_APP_NAME='imapex bot'" \
+    sparkbot
+
+    # ToDo - API call for configuring the Spark info
+
+    In cases where storing the Spark Email and Token as Environment Variables could
+    be a security risk, you can alternatively set them via a REST request.
+
+    curl -X POST http://localhost:5000/config \
+        -d "{\"SPARK_BOT_TOKEN\": \"<TOKEN>\", \"SPARK_BOT_EMAIL\": \"<EMAIL>"}"
+
+    You can read the configuration details with this request
+
+    curl http://localhost:5000/config
 
 """
 
@@ -230,6 +249,7 @@ def extract_message(command, text):
     message = text[cmd_loc + len(command):]
     return message
 
+
 # Setup the Spark connection and WebHook
 def spark_setup(email, token):
     # Update the global variables for config details
@@ -244,6 +264,7 @@ def spark_setup(email, token):
     globals()["webhook"] = setup_webhook(globals()["bot_app_name"], globals()["bot_url"])
     sys.stderr.write("Configuring Webhook. \n")
     sys.stderr.write("Webhook ID: " + globals()["webhook"].id + "\n")
+
 
 if __name__ == '__main__':
     # Entry point for bot
