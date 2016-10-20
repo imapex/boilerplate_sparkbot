@@ -65,13 +65,18 @@ To get started with your own SparkBot, follow this process.
 	cd ~/coding 
 
 	# Download the script 
-	curl -O https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh
+	curl -OL https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh
 
 	# Make the script executable 
 	chmod +x new_bot_setup.sh 
 	```
  
 2. Run the `new_bot_setup.sh` script
+
+    ```
+    ./new_bot_setup.sh
+    ```
+
 	* Provide your GitHub Credentials
 		* ***NOTE regarding GitHub 2 Factor Auth***
 			* If you have 2FA enabled on your GitHub account, you will need to provide a *Personal Access Token* when prompted for your password
@@ -263,7 +268,11 @@ Repeat the following steps for each new command you want to add.
 1.  A cleanup script is provided that will delete your bot code both locally and on GitHub.  From your Spark Bot's local root directory
 
 	```
-	setup_and_install/new_bot_cleanup.sh
+	# From the root of your project... 
+	cd setup_and_install 
+	
+	# Fun the cleanup script
+	./new_bot_cleanup.sh
 	
 	```
 2. Provide your GitHub Credentials and the name of your Bot.  The script will 
