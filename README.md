@@ -220,7 +220,7 @@ Repeat the following steps for each new command you want to add.
             curl -kX POST \
                 -H "content-type: application/json" \
                 -u admin:1vtG@lw@y \
-                https://mantlsandbox.cisco.com/marathon/v2/apps/hpreston/bottest/restart?force=true
+                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME>/restart?force=true
             ```
 
         2. Use this curl command to check the status of the deployment.  
@@ -228,7 +228,7 @@ Repeat the following steps for each new command you want to add.
             ```
             curl -kX GET \
                 -u admin:1vtG@lw@y \
-                https://mantlsandbox.cisco.com/marathon/v2/apps/hpreston/bottest \
+                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME> \
                 | python -m json.tool \
                 | egrep "tasksHealthy|tasksRunning|tasksStaged"
                 
