@@ -166,22 +166,18 @@ def setup_webhook(name, targeturl):
     try:
         for h in webhooks:  # Efficiently iterates through returned objects
             if h.name == name:
-                sys.stderr.write("Found existing webhook.\n")
-
-                # Update the targetURL for the Webhook
-                # This is erring, need to debug the ciscosparkapi library
-                # webhook = spark.webhooks.update(webhookId=global_webhook_id, name=bot_app_name, targetUrl=bot_url)
-
-                # Delete the existing webhook
-                spark.webhooks.delete(webhookId=h.id)
-
+                sys.stderr.write("Found existing webhook.  Updating it.\n")
+                wh = spark.webhooks.update(webhookId=h.id, name=name, targetUrl=targeturl)
                 # Stop searching
                 break
+        # If there wasn't a Webhook found
+        if wh is None:
+            sys.stderr.write("Creating new webhook.\n")
+            wh = spark.webhooks.create(name=name, targetUrl=targeturl, resource="messages", event="created")
     except:
-        pass
+        sys.stderr.write("Creating new webhook.\n")
+        wh = spark.webhooks.create(name=name, targetUrl=targeturl, resource="messages", event="created")
 
-    sys.stderr.write("Creating new webhook.\n")
-    wh = spark.webhooks.create(name=name, targetUrl=targeturl, resource="messages", event="created")
     return wh
 
 
