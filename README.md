@@ -86,7 +86,6 @@ To get started with your own SparkBot, follow this process.
     	* This will be used as the GitHub Repo Name
     	* You'll want to use this same name for the Docker Repository you create later
 	* The script will 
-	   * Store your Docker Hub Username, and the Repo Name as environment variables
 		* Download the boilerplate_sparkbot code
 		* Create a new local directory for your bot with the boilerplate code
 		* Delete the downloaded boilerplate code
@@ -98,6 +97,12 @@ To get started with your own SparkBot, follow this process.
 1. Build the base bot
 
     ```
+    # Set a couple environment variables to make commands easier
+    # Replace the <NAME> with your data
+    export BOT_REPO=<GITHUB REPO>
+    export BOT_NAME=<YOUR BOT NAME>
+    export DOCKER_USER=<DOCKER HUB USERNAME>
+    
     # If you aren't in your new Git Repository directory, change into it 
     cd $BOT_REPO
     
@@ -204,6 +209,12 @@ Repeat the following steps for each new command you want to add.
 1. Build and Push a new Docker Image
 
     ```
+    # If you've opened a new terminal sense setting before
+    export BOT_REPO=<GITHUB REPO>
+    export BOT_NAME=<YOUR BOT NAME>
+    export DOCKER_USER=<DOCKER HUB USERNAME>
+
+    
     # Build a Docker image
     docker build -t $DOCKER_USER/$BOT_REPO:latest .
     docker push $DOCKER_USER/$BOT_REPO:latest
@@ -217,15 +228,15 @@ Repeat the following steps for each new command you want to add.
             ![](readme_resources/sandbox_marathon1.jpg)
         3. Click on your application, and then click **Restart**
             ![](readme_resources/sandbox_marathon2.jpg)
-        4. Wait until the new task shows as **Healthy** and test your new function.  
+        4. Wait until the new task shows as **Healthy** 
     * Using the API 
-        1. Use this curl command to restart your application through the API.  Be sure to update the command with your Docker Username and Bot Name
+        1. Use this curl command to restart your application through the API.  
 
             ```
             curl -kX POST \
                 -H "content-type: application/json" \
                 -u admin:1vtG@lw@y \
-                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME>/restart?force=true
+                https://mantlsandbox.cisco.com/marathon/v2/apps/$DOCKER_USER/$BOT_NAME/restart?force=true
             ```
 
         2. Use this curl command to check the status of the deployment.  
@@ -233,7 +244,7 @@ Repeat the following steps for each new command you want to add.
             ```
             curl -kX GET \
                 -u admin:1vtG@lw@y \
-                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME> \
+                https://mantlsandbox.cisco.com/marathon/v2/apps/$DOCKER_USER/$BOT_NAME \
                 | python -m json.tool \
                 | egrep "tasksHealthy|tasksRunning|tasksStaged"
                 
@@ -242,9 +253,31 @@ Repeat the following steps for each new command you want to add.
             "tasksRunning": 1,
             "tasksStaged": 0,
             ```
+            
+## Reconfigure the bot with Spark Account Details
 
-        3. Test your new function.
+In order for your Bot to work, it needs to have the Spark Username (email address), and Spark Token configured.  There are two options for configuring these details
 
+1. Provide them as Environment Variables as the bot code starts up.  
+    * This requires that both the email and token be listed in clear text in any application configuration settings.  
+2. Provide them via a REST API call after the bot code starts up. 
+    * This can keep the details more secure, but means that you need to reconfigure the bot each time it restarts.
+
+When leveraging the DevNet Mantl Sandbox, the default installation behavior is the second, more secure, option.  This means each time you update your bot, you'll need to reset the credentials with this process.  
+
+```
+# Store the application details as Variables for easier API request building
+export DOCKER_USER=<DOCKER USERNAME>
+export BOT_NAME=<YOUR BOT NAME>
+export SPARK_EMAIL=<SPARK BOT EMAIL>
+export SPARK_TOKEN=<SPARK BOT TOKEN>
+    
+        
+curl -X POST \
+    http://$DOCKER_USER-$BOT_NAME.app.mantldevnetsandbox.com/config \
+    -d '{"SPARK_BOT_TOKEN": "'$SPARK_TOKEN'", "SPARK_BOT_EMAIL": "'$SPARK_EMAIL'"}'         
+    
+```    
 
 # Deleting your SparkBot
 

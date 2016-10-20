@@ -3,9 +3,6 @@
 echo What is your GitHub Username?
 read GITHUBUSER
 echo
-echo What is your Docker Hub Username?
-read DOCKERHUBUSER
-echo
 echo What is your GitHub Password?
 echo "  ** If you have 2 Factor Auth configured, "
 echo "     provide a Personal Access Token with repo and delete_repo access."
@@ -16,12 +13,6 @@ echo What is the name of your bot?
 echo "  - A new GitHub repo will be created with this name"
 read GITHUBREPO
 echo
-
-echo "Creating environment variables in active terminal for: "
-echo "    - DOCKER_USER=$DOCKERHUBUSER"
-echo "    - BOT_REPO=$GITHUBREPO"
-export BOT_REPO=$GITHUBREPO
-export DOCKER_USER=$DOCKERHUBUSER
 
 echo "Pulling down and prepping the code for the UI service."
 wget https://github.com/imapex/boilerplate_sparkbot/archive/master.zip
