@@ -55,6 +55,8 @@ The purpose of this boilerplate is to make it quick and easy to create new Spark
 
 To get started with your own SparkBot, follow this process.  
 
+## GitHub and Local Repository Setup
+
 1. Download the setup script
 
 	```
@@ -62,99 +64,215 @@ To get started with your own SparkBot, follow this process.
 	# DO NOT create a folder for your new bot
 	cd ~/coding 
 
-	# Download the script
-	wget https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh 
+	# Download the script 
+	curl -OL https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh
 
 	# Make the script executable 
 	chmod +x new_bot_setup.sh 
 	```
  
 2. Run the `new_bot_setup.sh` script
+
+    ```
+    ./new_bot_setup.sh
+    ```
+
 	* Provide your GitHub Credentials
 		* ***NOTE regarding GitHub 2 Factor Auth***
 			* If you have 2FA enabled on your GitHub account, you will need to provide a *Personal Access Token* when prompted for your password
 			* Tokens can be generated at [github.com/settings/tokens](https://github.com/settings/tokens)
 			* The token must have a minimum of `repo` access, and `delete_repo` access to automate the creation and cleanup of your new bot
 	* Provide a name for your new Spark Bot 
-	  *(also used as GitHub Repo Name)*
+    	* This will be used as the GitHub Repo Name
+    	* You'll want to use this same name for the Docker Repository you create later
 	* The script will 
+	   * Store your Docker Hub Username, and the Repo Name as environment variables
 		* Download the boilerplate_sparkbot code
 		* Create a new local directory for your bot with the boilerplate code
 		* Delete the downloaded boilerplate code
 		* Create a new GitHub Repo on your account for the bot 
 		* Push up the boilerplate code to GitHub
-3. Add your bot commands and features to the bot.py file 
+
+## Build and Push Initial Docker Image
+
+1. Build the base bot
+
+    ```
+    # If you aren't in your new Git Repository directory, change into it 
+    cd $BOT_REPO
+    
+    # Build a Docker image
+    docker build -t $DOCKER_USER/$BOT_REPO:latest .
+    ```
+    
+2. Push the image to Docker Hub
+    * You will need to have logged into Docker Hub on your workstation for this step.  If you haven't done so, you can by running: 
+
+        ```
+        docker login 
+        ```
+
+    ```
+    docker push $DOCKER_USER/$BOT_REPO:latest
+    ```
+
+## Deploy your Bot
+
+These steps will deploy your bot to the Cisco DevNet Mantl Sandbox.  This is just one option that is freely available to use, however you can deploy your bot to any infrastructure that meets these requirements:
+
+* Able to run a Docker Container
+* Provides a URL for inbound access to running containers from the Internet
+    * *Spark needs to be able to reach it with WebHooks*
+
+
+1. Deploy your Bot.  
+    
+    ```
+    # From the root of your project... 
+    cd setup_and_install 
+    	
+    # Run the install script
+    ./bot_install_sandbox.sh 
+    ```
+    
+    * Answer the questions asked
+    * When complete, you should see a message that looks like this
+
+    ```
+    Your bot is deployed to 
+
+    http://<DOCKER USERNAME>-<BOT NAME>.app.mantldevnetsandbox.com/
+    
+    You should be able to send a message to yourself from the bot by using this call
+    
+    curl http://<DOCKER USERNAME>-<BOT NAME>.app.mantldevnetsandbox.com/hello/<YOUR EMAIL ADDRESS>
+    
+    You can also watch the progress from the GUI at: 
+    
+    https://mantlsandbox.cisco.com/marathon
+    ``` 
+    
+2. Test that your bot is working by executing the `curl` command shown in your output.  If successfully deployed, you will recieve a message in Spark from your bot.   
+3. Reply back to your bot and verify that the default commands are working.  
+    * `/help` - should return a help message 
+    * `/echo Spark Bots are Awesome!` - should reply back with `Spark Bots are Awesome!`
+
+## Add a New Command to your Bot
+
+Repeat the following steps for each new command you want to add.  
 	
-	1. Add new commands to the command dictionary in bot/bot.py 
-
-		```
-		# The list of commands the bot listens for
-		# Each key in the dictionary is a command
-		# The value is the help message sent for the command
-		commands = {
-		    "/echo": "Reply back with the same message sent.",
-		    "/help": "Get help."
-		}
-		```
-		
-	2. Create a new Python function for each of your commands.  The function should return the text that will be sent back in reply.  You can use the included 	`send_echo` function as an example.  
-
-		```
-		def send_echo(incoming):
-		    # Get sent message
-		    message = incoming["text"]
-		    # Slice first 6 characters to remove command
-		    message = message[6:]
-		    return message	
-		```
-	
-	3. Update the `if ...elif` section of the `process_incoming_message` function for your new command.  
-
-		```
-		# Some of function removed below
-		def process_incoming_message(post_data):
-		    # Take action based on command
-		    # If no command found, send help
-		    if command in ["","/help"]:
-		        reply = send_help(post_data)
-		    elif command in ["/echo"]:
-		        reply = send_echo(message)
-		
-		    send_message_to_room(room_id, reply)	
-		```
-	
-4. Build the Docker image for your new bot.  There are several methods available for this.  
-	* Using a drone.io CICD Server
-		* Included in the boilerplate code is a .drone.yml configuration that will build a new container and publish to a Docker Hub repository
-		* You'll need to copy the drone-secrets-sample.yml file to drone-secrets.yml, provide your informaiton, and secure the file before builds will be successful 
-		* **TODO - PROVIDE MORE DETAILS**
-	* Alternatively you can locally build and push to Docker Hub, or create an automated build repository on Docker Hub
-		* **TODO - Provide more details**
-5. Deploy your Bot.  To fully function, you must deploy your bot where it is publically avialable on the Internet (Spark needs to be able to reach it with WebHooks)
-	* The DevNet Mantl Sandbox is a free and available option that can be used
-		* Included in the code is an installation script that will deploy your bot to the sandbox.  *This script assumes you've published a Docker image to hub.docker.com for your bot*
-		* To install to the Sandbox
-
-			```
-			# From the root of your project... 
-			cd setup_and_install 
-			
-			# Run the install script
-			./bot_install_sandbox.sh 
-			```
-			
-		* Answer the questions
-		* A new Marathon app definition for your bot will be created and deployed to the DevNet Sandbox
-
-
-## Deleting your SparkBot
-
-Should you want to delete your SparkBot, a cleanup script is provided that will do much of the work for you.  
-
-1.  From your Spark Bot's local root directory
+1. Add new commands to the command dictionary in bot/bot.py 
 
 	```
-	setup_and_install/new_bot_cleanup.sh
+	# The list of commands the bot listens for
+	# Each key in the dictionary is a command
+	# The value is the help message sent for the command
+	commands = {
+	    "/echo": "Reply back with the same message sent.",
+	    "/help": "Get help."
+	}
+	```
+	
+2. Create a new Python function for each of your commands.  The function should return the text that will be sent back in reply.  You can use the included 	`send_echo` function as an example.  
+
+	```
+	def send_echo(incoming):
+	    # Get sent message
+	    message = incoming["text"]
+	    # Slice first 6 characters to remove command
+	    message = message[6:]
+	    return message	
+	```
+	
+3. Update the `if ...elif` section of the `process_incoming_message` function for your new command.  
+
+	```
+	# Some of function removed below
+	def process_incoming_message(post_data):
+	    # Take action based on command
+	    # If no command found, send help
+	    if command in ["","/help"]:
+	        reply = send_help(post_data)
+	    elif command in ["/echo"]:
+	        reply = send_echo(message)
+	
+	    send_message_to_room(room_id, reply)	
+	```
+
+## Update your running bot
+
+1. Build and Push a new Docker Image
+
+    ```
+    # Build a Docker image
+    docker build -t $DOCKER_USER/$BOT_REPO:latest .
+    docker push $DOCKER_USER/$BOT_REPO:latest
+    ```
+
+2. Restart your Bot in the DevNet Sandbox.  Two options for this. 
+    * Through the Marathon GUI
+        1. Login to Marathon at [https://mantlsandbox.cisco.com/marathon/](https://mantlsandbox.cisco.com/marathon/)
+            * Username/Password: admin/1vtG@lw@y
+        2. Find your running Application.  It will be in a folder matching your Docker Username.  
+            ![](readme_resources/sandbox_marathon1.jpg)
+        3. Click on your application, and then click **Restart**
+            ![](readme_resources/sandbox_marathon2.jpg)
+        4. Wait until the new task shows as **Healthy** and test your new function.  
+    * Using the API 
+        1. Use this curl command to restart your application through the API.  Be sure to update the command with your Docker Username and Bot Name
+
+            ```
+            curl -kX POST \
+                -H "content-type: application/json" \
+                -u admin:1vtG@lw@y \
+                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME>/restart?force=true
+            ```
+
+        2. Use this curl command to check the status of the deployment.  
+
+            ```
+            curl -kX GET \
+                -u admin:1vtG@lw@y \
+                https://mantlsandbox.cisco.com/marathon/v2/apps/< DOCKER USERNAME>/<BOT NAME> \
+                | python -m json.tool \
+                | egrep "tasksHealthy|tasksRunning|tasksStaged"
+                
+            # Wait until output matches this (1 Health, 1 Running, and 0 Staged)
+            "tasksHealthy": 1,
+            "tasksRunning": 1,
+            "tasksStaged": 0,
+            ```
+
+        3. Test your new function.
+
+
+# Deleting your SparkBot
+
+## Uninstalling your Bot
+
+1. An uninstallation script is provided to uninstall your bot from the DevNet Sandbox.  
+
+    ```
+	# From the root of your project... 
+	cd setup_and_install 
+	
+	# Run the install script
+	./bot_uninstall_sandbox.sh 
+	```
+
+
+## Deleting the GitHub Repo and Code 
+
+**Caution: This step will delete both your local copy of your code & on GitHub**
+
+1.  A cleanup script is provided that will delete your bot code both locally and on GitHub.  From your Spark Bot's local root directory
+
+	```
+	# From the root of your project... 
+	cd setup_and_install 
+	
+	# Fun the cleanup script
+	./new_bot_cleanup.sh
 	
 	```
 2. Provide your GitHub Credentials and the name of your Bot.  The script will 
@@ -162,16 +280,18 @@ Should you want to delete your SparkBot, a cleanup script is provided that will 
 	* Delete your repository from GitHub
 	* Delete the local code from your workstation 
 
-3.  You will manually need to 
+## Manual Steps
 
-	* Delete any running instances of your application 
-		* If you have deployed to the DevNet Sandbox, an uninstall script is available `setup_and_install/bot_uninstall_sandbox.sh` 
-	* Delete any Docker (or other container registry) Repositories for your Bot 
-	* Clear any WebHooks from the Spark Account you created for your bot
+You will manually need to 
+
+* Delete any other running instances of your application
+* Delete any Docker (or other container registry) Repositories for your Bot 
+* Clear any WebHooks from the Spark Account you created for your bot
 
 
-# Spark Bot Installation and Details
+# Other Application Details
 
+Some more information on the details of this boilerplate application.  
 
 ## Environment
 
@@ -202,37 +322,20 @@ The latest build of this project is also available as a Docker image from Docker
 
     docker pull imapex/boilerplate_sparkbot:latest
 
-## Installing
-
-Provide instructions on how to install / use the application.  The details provided here relate to the boilerplate_sparkbot itself, be sure to update for any additions/changes your Bot requires.  
-
-# Usage
+# Local Development Usage
 
 The bot is designed to be deployed as a Docker Container, and can run on any platform supporting Docker Containers.  Mantl.io is one example of a platform that can be used to run the bot.
 
 ***NOTE: For full functionality, this bot needs to be installed in an environment where the bot application is available on the public internet in order for the Spark Cloud to be able to send WebHooks to the bot.  If you do NOT have an environment to use, the DevNet Sandbox Mantl cluster can be leveraged to host your bot.***  
 
-### Deploying to a Mantl.io cluster 
+## Development Usage for Webhooks with Spark 
 
-**TODO - update with details on how to install to Mantl** 
+For development, you may want to run your bot code locally on your workstation.  If you do this, there is (typically) no way for Webhooks from the Spark cloud to directly access your code running on your laptop.  To get around this, you can leverage the [RequestB.in](http://requestb.in) service as a middleman between Spark and your local workstation.  This service will give you a publically available URL that you use as the **SPARK\_BOT\_URL** parameter.  Spark will then send Webhooks to this local service where you can view the details of the request, and then manually send it to your bot running on your laptop.  
 
-### Locally building and running the Docker Container 
-
-You can build and run the Spark Bot as a Docker Container locally with these commands.  
-
-```
-docker build -t sparkbot .
-docker run -it --name sparkbot \
-	-e "SPARK_BOT_EMAIL=myhero.demo@domain.com" \
-	-e "SPARK_BOT_TOKEN=adfiafdadfadfaij12321kaf" \
-	-e "SPARK_BOT_URL=http://myhero-spark.mantl.domain.com" \
-	-e "SPARK_BOT_APP_NAME='imapex bot'" \
-	sparkbot
-```
-
-### Running Python Code Locally 
+## Running Python Code Locally 
 
 There are several pieces of information needed to run this application.  These details are provided Environment Variables to the application.
+*Be sure to use valid details for the environment variables*
 
 If you are running the python application directly, you can set them like this:
 
@@ -250,7 +353,23 @@ python bot/bot.py
 
 ```
 
+## Locally building and running the Docker Container 
 
+There are several pieces of information needed to run this application.  These details are provided Environment Variables to the application.
+*Be sure to use valid details for the environment variables*
+
+You can build and run the Spark Bot as a Docker Container locally with these commands.  
+
+```
+docker build -t sparkbot .
+docker run -it --name sparkbot \
+   -p 5000:5000 \
+	-e "SPARK_BOT_EMAIL=myhero.demo@domain.com" \
+	-e "SPARK_BOT_TOKEN=adfiafdadfadfaij12321kaf" \
+	-e "SPARK_BOT_URL=http://myhero-spark.mantl.domain.com" \
+	-e "SPARK_BOT_APP_NAME='imapex bot'" \
+	sparkbot
+```
 
 # Development
 
