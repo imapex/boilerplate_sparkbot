@@ -74,7 +74,5 @@ echo "Bot is up.  Configuring Spark."
 echo "Bot Configuration: "
 curl -X POST $BOT_URL/config \
     -d "{\"SPARK_BOT_TOKEN\": \"$bot_token\", \"SPARK_BOT_EMAIL\": \"$bot_email\"}"
-echo "Checking Bot Config."
 echo
-curl -X GET $BOT_URL/config
 
