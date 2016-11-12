@@ -279,6 +279,25 @@ curl -X POST \
     
 ```    
 
+### Configuration Update Script
+
+A bash script is included in the `setup_and_install` directory that will do the configuration update for you.  
+
+```
+cd setup_and_install
+./bot_config.sh
+```
+#### Completed Configuration Message Example
+```
+Checking if Bot is up
+HTTP Status: 200
+
+Bot is up.  Configuring Spark.
+Bot Configuration:
+{"SPARK_BOT_TOKEN": "REDACTED", "SPARKBOT_APP_NAME": "<BOT NAME>", "SPARK_BOT_URL": "http://<DOCKER USER>-<BOT NAME>.app.mantldevnetsandbox.com", "SPARK_BOT_EMAIL": "angelbot@sparkbot.io"}
+```
+
+
 # Deleting your SparkBot
 
 ## Uninstalling your Bot
