@@ -73,8 +73,8 @@ To get started with your own SparkBot, follow this process.
     chmod +x new_bot_setup.sh 
     ```
 	
-	**Windows Version**
-	
+	**Windows Version - Requires 7-Zip to be installed and in PATH**
+		
     ```
     # move to the directory where you store code for your projects
     # DO NOT create a folder for your new bot
