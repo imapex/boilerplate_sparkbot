@@ -55,26 +55,45 @@ The purpose of this boilerplate is to make it quick and easy to create new Spark
 
 To get started with your own SparkBot, follow this process.  
 
+***Windows Users - Alternative Instructions:*** [windows_setup](windows_setup.md)
+
 ## GitHub and Local Repository Setup
 
 1. Download the setup script
-
-	```
-	# move to the directory where you store code for your projects
-	# DO NOT create a folder for your new bot
-	cd ~/coding 
-
-	# Download the script 
-	curl -OL https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh
-
-	# Make the script executable 
-	chmod +x new_bot_setup.sh 
-	```
+    
+    ```
+    # move to the directory where you store code for your projects
+    # DO NOT create a folder for your new bot
+    cd ~/coding 
+    
+    # Download the script 
+    curl -OL https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.sh
+    
+    # Make the script executable 
+    chmod +x new_bot_setup.sh 
+    ```
+	
+	**Windows Version**
+	
+    ```
+    # move to the directory where you store code for your projects
+    # DO NOT create a folder for your new bot
+    cd ~/coding 
+    
+    # Download the script 
+    Invoke-WebRequest "https://github.com/imapex/boilerplate_sparkbot/raw/master/setup_and_install/new_bot_setup.ps1" -OutFile "new_bot_setup.ps1"
+    ```	
  
 2. Run the `new_bot_setup.sh` script
 
     ```
     ./new_bot_setup.sh
+    ```
+    
+    **Windows Version**
+    
+    ```
+    new_bot_setup.ps1
     ```
 
 	* Provide your GitHub Credentials
@@ -140,6 +159,16 @@ These steps will deploy your bot to the Cisco DevNet Mantl Sandbox.  This is jus
     ./bot_install_sandbox.sh 
     ```
     
+    **Windows Version**
+    
+    ```
+    # From the root of your project... 
+    cd setup_and_install 
+    	
+    # Run the install script
+    ./bot_install_sandbox.ps1
+    ```    
+    
     * Answer the questions asked
     * When complete, you should see a message that looks like this
 
@@ -156,6 +185,22 @@ These steps will deploy your bot to the Cisco DevNet Mantl Sandbox.  This is jus
     
     https://mantlsandbox.cisco.com/marathon
     ``` 
+    
+    **Windows Version**
+    
+    ```
+    Your bot is deployed to 
+
+    http://<DOCKER USERNAME>-<BOT NAME>.app.mantldevnetsandbox.com/
+    
+    You should be able to send a message to yourself from the bot by using this call
+    
+    Invoke-WebRequest http://$docker_username-$bot_name.$mantl_domain/hello/<YOUR EMAIL ADDRESS>
+    
+    You can also watch the progress from the GUI at: 
+    
+    https://mantlsandbox.cisco.com/marathon
+    ```     
     
 2. Test that your bot is working by executing the `curl` command shown in your output.  If successfully deployed, you will recieve a message in Spark from your bot.   
 3. Reply back to your bot and verify that the default commands are working.  
@@ -287,6 +332,14 @@ A bash script is included in the `setup_and_install` directory that will do the 
 cd setup_and_install
 ./bot_config.sh
 ```
+
+**Windows Version**
+
+```
+cd setup_and_install
+./bot_config.ps1
+```
+
 #### Completed Configuration Message Example
 ```
 Checking if Bot is up
@@ -308,8 +361,18 @@ Bot Configuration:
 	# From the root of your project... 
 	cd setup_and_install 
 	
-	# Run the install script
+	# Run the uninstall script
 	./bot_uninstall_sandbox.sh 
+	```
+	
+    **Windows Version**	
+    
+    ```
+	# From the root of your project... 
+	cd setup_and_install 
+	
+	# Run the uninstall script
+	./bot_uninstall_sandbox.ps1 
 	```
 
 
@@ -327,6 +390,19 @@ Bot Configuration:
 	./new_bot_cleanup.sh
 	
 	```
+	
+	**Windows Version**
+	
+	```
+	# From the root of your project... 
+	cd setup_and_install 
+	
+	# Fun the cleanup script
+	./new_bot_cleanup.ps1
+	
+	```
+
+	
 2. Provide your GitHub Credentials and the name of your Bot.  The script will 
 
 	* Delete your repository from GitHub
