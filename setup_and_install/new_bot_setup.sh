@@ -15,11 +15,12 @@ read GITHUBREPO
 echo
 
 echo "Pulling down and prepping the code for the UI service."
-wget https://github.com/imapex/boilerplate_sparkbot/archive/master.zip
+curl -O https://codeload.github.com/imapex/boilerplate_sparkbot/zip/master
+mv master master.zip
 
 echo
 echo Creating new directory ./$GITHUBREPO with bot code
-mkdir
+mkdir ./$GITHUBREPO 
 unzip -qq master.zip -d ./$GITHUBREPO
 rm master.zip
 cd ./$GITHUBREPO
